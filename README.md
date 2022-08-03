@@ -15,7 +15,7 @@ pub/sub semantics. The pub/sub streams are keyed by `foci`, `call_id`, `device_i
 
 Lets say you have a Matrix room where user `Alice` wishes to publish a screenshare to `Bob` and `Charlie`.
 
-```
+```none
 * `Alice` establishes a session with a SFU
 * `Alice` publishes a screenshare feed with `call_id`, `device_id` and `purpose`
 * `Alice` publishes to the matrix room with the values `foci`, `call_id`, `device_id` and `purpose`
@@ -32,7 +32,9 @@ Lets say you have a Matrix room where user `Alice` wishes to publish a screensha
 ```
 
 ## How
+
 ### Establishing a session
+
 Client sends a POST with a WebRTC Offer that is datachannel only. Server responds with Answer.
 
 Server will open a datachannel called `signaling`. Clients can send publish/subscribe now.
@@ -40,7 +42,8 @@ Server will open a datachannel called `signaling`. Clients can send publish/subs
 `POST /createSession`
 
 `Request`
-```
+
+```sdp
 o=- 6685856480478485828 2 IN IP4 127.0.0.1
 s=-
 t=0 0
@@ -60,7 +63,8 @@ a=max-message-size:262144
 ```
 
 `Response`
-```
+
+```sdp
 o=- 1712750552704711910 2 IN IP4 127.0.0.1
 s=-
 t=0 0
@@ -80,6 +84,7 @@ a=max-message-size:262144
 ```
 
 ### Publish a Stream
+
 A user can start publish a stream by making a JSON request to publish with a new Offer. With the following keys.
 
 * `event` - Must be `publish`
@@ -87,92 +92,98 @@ A user can start publish a stream by making a JSON request to publish with a new
 * Stream Identification - `call_id`, `device_id`, `purpose`
 * `sdp` - Offer frome the Peer. Any new additional tracks will belong to the stream.
 
-```
+```json
 {
-	event: 'publish',
-	id: `ABC`,
-	call_id: 'AAA',
-	device_id: 'BBB',
-	purpose: 'DDD',
-	sdp: `...`,
+    "event": "publish",
+    "id": "ABC",
+    "call_id": "AAA",
+    "device_id": "BBB",
+    "purpose": "DDD",
+    "sdp": "...",
 }
 ```
 
-** Errors **
-* Stream already exists
-* Server over capacity
+* **Errors**
+  * Stream already exists
+  * Server over capacity
 
 The server will respond to the `subscribe` with the answer.
 
-```
+```json
 {
-	event: 'publish',
-	id: `ABC`,
-	call_id: 'AAA',
-	device_id: 'BBB',
-	purpose: 'DDD',
-	sdp: `...`,
+    "event": "publish",
+    "id": "ABC",
+    "call_id": "AAA",
+    "device_id": "BBB",
+    "purpose": "DDD",
+    "sdp": "...",
 }
 ```
 
-
 ### Subscribe to a Stream
+
 A user can subscribe to a stream by making a JSON request to subscribe with a new Offer. With the following keys.
 
 * `event` - Must be `subscribe`
 * `id` - Unique ID for this message. Allows server to respond with with errors
 * Stream Identification - `call_id`, `device_id`, `purpose`
 
-```
+```json
 {
-	event: 'subscribe',
-	id: `ABC`,
-	call_id: 'AAA',
-	device_id: 'BBB',
-	purpose: 'DDD',
-	sdp: `...`,
+    "event": "subscribe",
+    "id": "ABC",
+    "call_id": "AAA",
+    "device_id": "BBB",
+    "purpose": "DDD",
+    "sdp": "...",
 }
 ```
 
 The client will respond to the `subscribe` with the answer.
 
-```
+```json
 {
-	event: 'subscribe',
-	id: `ABC`,
-	sdp: `...`,
+    "event": "subscribe",
+    "id": "ABC",
+    "sdp": "...",
 }
 ```
 
-** Errors **
-* Stream doesn'texist
-* Server over capacity
+* **Errors**
+  * Stream doesn't exist
+  * Server over capacity
 
 ### Unpublish a Stream
-```
+
+```json
 {
-	event: 'unpublish',
-	id: `ABC`,
-	call_id: 'AAA',
-	device_id: 'BBB',
-	purpose: 'DDD',
+    "event": "unpublish",
+    "id": "ABC",
+    "call_id": "AAA",
+    "device_id": "BBB",
+    "purpose": "DDD",
 }
 ```
 
 ### Unsubscribe to a Stream
 
-```
+```json
 {
-	event: 'unsubscribe',
-	id: `ABC`,
-	call_id: 'AAA',
-	device_id: 'BBB',
-	purpose: 'DDD',
+    "event": "unsubscribe",
+    "id": "ABC",
+    "call_id": "AAA",
+    "device_id": "BBB",
+    "purpose": "DDD",
 }
 ```
 
 ## Running
 
-* `go run *.go`
-* Access at http://localhost:8080
+* `go run ./src/*.go`
+* Access at <http://localhost:8080>
 
+## Building
+
+* `./build.zsh`
+* `./dist/bin`
+* Access at <http://localhost:8080>
